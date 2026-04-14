@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PORT="${1:-8000}"
+BASE_URL="http://localhost:${PORT}"
+
+paths=(
+  "/"
+  "/blog/"
+  "/projects/"
+)
+
+for path in "${paths[@]}"; do
+  curl -fsSI "${BASE_URL}${path}" >/dev/null
+  echo "OK ${BASE_URL}${path}"
+done

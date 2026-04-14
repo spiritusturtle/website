@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python Site Preview"
+  short_description: "Preview a static website locally with Python."
+  default_prompt: "Preview this site locally with Python and give me the URL."
