@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PORT="${1:-8000}"
+START_PORT="${1:-8000}"
 
-python3 -m http.server "$PORT"
+for PORT in $(seq "$START_PORT" "$((START_PORT + 10))"); do
+  if ! lsof -i :"$PORT" >/dev/null 2>&1; then
+    echo "Serving preview at http://localhost:${PORT}/"
+    exec python3 -m http.server "$PORT"
+  fi
+done
+
+echo "No available preview port found between ${START_PORT} and $((START_PORT + 10))." >&2
+exit 1

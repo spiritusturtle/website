@@ -3,14 +3,64 @@ set -euo pipefail
 
 PORT="${1:-8000}"
 BASE_URL="http://localhost:${PORT}"
+FAILED=0
 
-paths=(
-  "/"
-  "/blog/"
-  "/projects/"
-)
+while IFS= read -r file; do
+  path="${file#./}"
 
-for path in "${paths[@]}"; do
+  if [[ "$path" == "index.html" ]]; then
+    path="/"
+  elif [[ "$path" == */index.html ]]; then
+    path="/${path%index.html}"
+  else
+    path="/${path}"
+  fi
+
   curl -fsSI "${BASE_URL}${path}" >/dev/null
   echo "OK ${BASE_URL}${path}"
-done
+done < <(find . -type f -name "*.html" -not -path "./.git/*" | sort)
+
+while IFS= read -r line; do
+  file="${line%%:*}"
+  url="${line#*:}"
+
+  [[ -z "$url" ]] && continue
+  [[ "$url" == http://* || "$url" == https://* || "$url" == mailto:* || "$url" == tel:* || "$url" == "#" ]] && continue
+  [[ "$url" == javascript:* ]] && continue
+
+  url="${url%%#*}"
+  url="${url%%\?*}"
+  [[ -z "$url" ]] && continue
+
+  if [[ "$url" == /* ]]; then
+    target=".${url}"
+  else
+    target="$(dirname "$file")/${url}"
+  fi
+
+  if [[ -d "$target" ]]; then
+    target="${target%/}/index.html"
+  fi
+
+  if [[ ! -e "$target" ]]; then
+    echo "BROKEN ${file}: ${url}" >&2
+    FAILED=1
+  fi
+done < <(
+  find . -type f -name "*.html" -not -path "./.git/*" -print0 |
+    xargs -0 awk '
+      {
+        while (match($0, /(href|src)="[^"]+"/)) {
+          value = substr($0, RSTART, RLENGTH)
+          sub(/^[^"]+"/, "", value)
+          sub(/"$/, "", value)
+          print FILENAME ":" value
+          $0 = substr($0, RSTART + RLENGTH)
+        }
+      }
+    '
+)
+
+if [[ "$FAILED" -ne 0 ]]; then
+  exit 1
+fi
