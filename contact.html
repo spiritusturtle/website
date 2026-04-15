@@ -20,6 +20,7 @@
     <div class="site-shell">
       <header class="site-header">
         <a class="brand" href="index.html">Michelle Bird</a>
+        <button class="menu-toggle" type="button" aria-expanded="false">Menu</button>
         <nav class="site-nav" aria-label="Primary navigation">
           <a href="index.html">Home</a>
           <a href="blog/index.html">Blog</a>
@@ -41,12 +42,12 @@
 
         <section class="contact-email-panel">
           <p class="section-label">Email</p>
-          <h2>230131@hsu.ac.uk</h2>
+          <h2>Email Michelle directly</h2>
           <p>
-            Use this address for research, collaboration, or professional
+            Use the button below for research, collaboration, or professional
             enquiries.
           </p>
-          <a class="button button-primary" href="mailto:230131@hsu.ac.uk">Email Michelle</a>
+          <a class="button button-primary" href="#" id="email-link">Email Michelle</a>
         </section>
 
         <section class="contact-panel">
@@ -72,5 +73,12 @@
     </div>
 
     <script src="scripts/site.js"></script>
+    <script>
+      const emailLink = document.querySelector("#email-link");
+      const user = ["230", "131"].join("");
+      const domain = ["hsu", "ac", "uk"].join(".");
+
+      emailLink.href = "mailto:" + user + "@" + domain;
+    </script>
   </body>
 </html>
