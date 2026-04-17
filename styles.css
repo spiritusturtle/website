@@ -588,6 +588,10 @@ p:last-child {
   font-size: 0.9rem;
 }
 
+.reference-list a {
+  overflow-wrap: anywhere;
+}
+
 .back-link,
 .text-link {
   color: var(--accent-dark);
